@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.demo.dao.FriendDao" >
+  <resultMap id="BaseResultMap" type="com.example.demo.entity.Friend" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="add_id" property="addId" jdbcType="INTEGER" />
+    <result column="add_name" property="addName" jdbcType="VARCHAR" />
+    <result column="accept_id" property="acceptId" jdbcType="INTEGER" />
+    <result column="accept_name" property="acceptName" jdbcType="VARCHAR" />
+    <result column="add_describe" property="addDescribe" jdbcType="VARCHAR" />
+    <result column="pass_status" property="passStatus" jdbcType="INTEGER" />
+    <result column="add_time" property="addTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, add_id, add_name, accept_id, accept_name, add_describe, pass_status, add_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from chat_system_friend
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from chat_system_friend
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.example.demo.entity.Friend" >
+    insert into chat_system_friend (id, add_id, add_name, 
+      accept_id, accept_name, add_describe, 
+      pass_status, add_time)
+    values (#{id,jdbcType=INTEGER}, #{addId,jdbcType=INTEGER}, #{addName,jdbcType=VARCHAR}, 
+      #{acceptId,jdbcType=INTEGER}, #{acceptName,jdbcType=VARCHAR}, #{addDescribe,jdbcType=VARCHAR}, 
+      #{passStatus,jdbcType=INTEGER}, #{addTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.example.demo.entity.Friend" >
+    insert into chat_system_friend
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="addId != null" >
+        add_id,
+      </if>
+      <if test="addName != null" >
+        add_name,
+      </if>
+      <if test="acceptId != null" >
+        accept_id,
+      </if>
+      <if test="acceptName != null" >
+        accept_name,
+      </if>
+      <if test="addDescribe != null" >
+        add_describe,
+      </if>
+      <if test="passStatus != null" >
+        pass_status,
+      </if>
+      <if test="addTime != null" >
+        add_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="addId != null" >
+        #{addId,jdbcType=INTEGER},
+      </if>
+      <if test="addName != null" >
+        #{addName,jdbcType=VARCHAR},
+      </if>
+      <if test="acceptId != null" >
+        #{acceptId,jdbcType=INTEGER},
+      </if>
+      <if test="acceptName != null" >
+        #{acceptName,jdbcType=VARCHAR},
+      </if>
+      <if test="addDescribe != null" >
+        #{addDescribe,jdbcType=VARCHAR},
+      </if>
+      <if test="passStatus != null" >
+        #{passStatus,jdbcType=INTEGER},
+      </if>
+      <if test="addTime != null" >
+        #{addTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.example.demo.entity.Friend" >
+    update chat_system_friend
+    <set >
+      <if test="addId != null" >
+        add_id = #{addId,jdbcType=INTEGER},
+      </if>
+      <if test="addName != null" >
+        add_name = #{addName,jdbcType=VARCHAR},
+      </if>
+      <if test="acceptId != null" >
+        accept_id = #{acceptId,jdbcType=INTEGER},
+      </if>
+      <if test="acceptName != null" >
+        accept_name = #{acceptName,jdbcType=VARCHAR},
+      </if>
+      <if test="addDescribe != null" >
+        add_describe = #{addDescribe,jdbcType=VARCHAR},
+      </if>
+      <if test="passStatus != null" >
+        pass_status = #{passStatus,jdbcType=INTEGER},
+      </if>
+      <if test="addTime != null" >
+        add_time = #{addTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.example.demo.entity.Friend" >
+    update chat_system_friend
+    set add_id = #{addId,jdbcType=INTEGER},
+      add_name = #{addName,jdbcType=VARCHAR},
+      accept_id = #{acceptId,jdbcType=INTEGER},
+      accept_name = #{acceptName,jdbcType=VARCHAR},
+      add_describe = #{addDescribe,jdbcType=VARCHAR},
+      pass_status = #{passStatus,jdbcType=INTEGER},
+      add_time = #{addTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <update id="changePassStatus">
+    update chat_system_friend
+    set pass_status = #{param2}
+    where id = #{param1}
+  </update>
+
+  <select id="getFriends" resultMap="BaseResultMap">
+    select *
+    from chat_system_friend
+    where add_id = #{addId}
+       or accept_id = #{addId}
+  </select>
+  <select id="getFriend" resultType="java.lang.Integer">
+    select count(*)
+    from chat_system_friend
+    where (add_id = #{param1} and accept_id = #{param2})
+       or (add_id = #{param2} and accept_id = #{param1})
+  </select>
+</mapper>

@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.demo.dao.MessageDao">
+  <resultMap id="BaseResultMap" type="com.example.demo.entity.Message">
+    <id column="id" property="id" jdbcType="INTEGER"/>
+    <result column="from_id" property="fromId" jdbcType="INTEGER"/>
+    <result column="from_name" property="fromName" jdbcType="VARCHAR"/>
+    <result column="to_id" property="toId" jdbcType="INTEGER"/>
+    <result column="to_name" property="toName" jdbcType="VARCHAR"/>
+    <result column="group_or_friend" property="groupOrFriend" jdbcType="INTEGER"/>
+    <result column="type" property="type" jdbcType="INTEGER"/>
+    <result column="read_status" property="readStatus" jdbcType="INTEGER"/>
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.example.demo.entity.Message" extends="BaseResultMap">
+    <result column="content" property="content" jdbcType="LONGVARCHAR"/>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id
+    , from_id, from_name, to_id, to_name, group_or_friend, type, read_status, create_time
+  </sql>
+  <sql id="Blob_Column_List">
+    content
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer">
+    select
+    <include refid="Base_Column_List"/>
+    ,
+    <include refid="Blob_Column_List"/>
+    from chat_system_message
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="getMessages" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer">
+    select *
+    from chat_system_message
+    where (from_id = #{fromId} and to_id = #{toId})
+       or (from_id = #{toId} and to_id = #{fromId})
+    order by create_time desc limit 0, 4
+  </select>
+  <select id="getMessagesCount" resultType="java.lang.Integer">
+    select count(id)
+    from chat_system_message
+    where (from_id = #{fromId} and to_id = #{toId})
+       or (from_id = #{toId} and to_id = #{fromId})
+  </select>
+  <select id="getMessagesByTime" resultMap="ResultMapWithBLOBs">
+    select *
+    from chat_system_message
+    where ((from_id = #{param1} and to_id = #{param2})
+      or (from_id = #{param2} and to_id = #{param1}))
+      and create_time
+      between
+      ((select create_time
+        from chat_system_message
+        where create_time &lt; date_format(#{param3}, '%Y-%m-%d 00:00:00')
+        order by create_time limit
+      0,1) )
+      and #{param3}
+    order by create_time desc
+      limit 0, 10
+  </select>
+
+  <select id="getMessagesByTimeCurr" resultMap="ResultMapWithBLOBs">
+    select *
+    from chat_system_message
+    where ((from_id = #{param1} and to_id = #{param2})
+      or (from_id = #{param2} and to_id = #{param1}))
+      and create_time
+      between
+      date_format(#{param3}, '%Y-%m-%d 00:00:00')
+      and #{param3}
+    order by create_time desc limit 0, 10
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete
+    from chat_system_message
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" keyProperty="id" useGeneratedKeys="true" parameterType="com.example.demo.entity.Message">
+    insert into chat_system_message (id, from_id, from_name,
+                                     to_id, to_name, group_or_friend,
+                                     type, read_status, create_time,
+                                     content)
+    values (#{id,jdbcType=INTEGER}, #{fromId,jdbcType=INTEGER}, #{fromName,jdbcType=VARCHAR},
+            #{toId,jdbcType=INTEGER}, #{toName,jdbcType=VARCHAR}, #{groupOrFriend,jdbcType=INTEGER},
+            #{type,jdbcType=INTEGER}, #{readStatus,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP},
+            #{content,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.example.demo.entity.Message">
+    insert into chat_system_message
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="fromId != null">
+        from_id,
+      </if>
+      <if test="fromName != null">
+        from_name,
+      </if>
+      <if test="toId != null">
+        to_id,
+      </if>
+      <if test="toName != null">
+        to_name,
+      </if>
+      <if test="groupOrFriend != null">
+        group_or_friend,
+      </if>
+      <if test="type != null">
+        type,
+      </if>
+      <if test="readStatus != null">
+        read_status,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="content != null">
+        content,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="fromId != null">
+        #{fromId,jdbcType=INTEGER},
+      </if>
+      <if test="fromName != null">
+        #{fromName,jdbcType=VARCHAR},
+      </if>
+      <if test="toId != null">
+        #{toId,jdbcType=INTEGER},
+      </if>
+      <if test="toName != null">
+        #{toName,jdbcType=VARCHAR},
+      </if>
+      <if test="groupOrFriend != null">
+        #{groupOrFriend,jdbcType=INTEGER},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="readStatus != null">
+        #{readStatus,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.example.demo.entity.Message">
+    update chat_system_message
+    <set>
+      <if test="fromId != null">
+        from_id = #{fromId,jdbcType=INTEGER},
+      </if>
+      <if test="fromName != null">
+        from_name = #{fromName,jdbcType=VARCHAR},
+      </if>
+      <if test="toId != null">
+        to_id = #{toId,jdbcType=INTEGER},
+      </if>
+      <if test="toName != null">
+        to_name = #{toName,jdbcType=VARCHAR},
+      </if>
+      <if test="groupOrFriend != null">
+        group_or_friend = #{groupOrFriend,jdbcType=INTEGER},
+      </if>
+      <if test="type != null">
+        type = #{type,jdbcType=INTEGER},
+      </if>
+      <if test="readStatus != null">
+        read_status = #{readStatus,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.example.demo.entity.Message">
+    update chat_system_message
+    set from_id         = #{fromId,jdbcType=INTEGER},
+        from_name       = #{fromName,jdbcType=VARCHAR},
+        to_id           = #{toId,jdbcType=INTEGER},
+        to_name         = #{toName,jdbcType=VARCHAR},
+        group_or_friend = #{groupOrFriend,jdbcType=INTEGER},
+        type            = #{type,jdbcType=INTEGER},
+        read_status     = #{readStatus,jdbcType=INTEGER},
+        create_time     = #{createTime,jdbcType=TIMESTAMP},
+        content         = #{content,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.example.demo.entity.Message">
+    update chat_system_message
+    set from_id         = #{fromId,jdbcType=INTEGER},
+        from_name       = #{fromName,jdbcType=VARCHAR},
+        to_id           = #{toId,jdbcType=INTEGER},
+        to_name         = #{toName,jdbcType=VARCHAR},
+        group_or_friend = #{groupOrFriend,jdbcType=INTEGER},
+        type            = #{type,jdbcType=INTEGER},
+        read_status     = #{readStatus,jdbcType=INTEGER},
+        create_time     = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

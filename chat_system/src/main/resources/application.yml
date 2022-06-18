@@ -1,0 +1,66 @@
+#端口
+server:
+  port: 8090
+  tomcat:
+    uri-encoding: utf-8
+    connection-timeout: 5000ms
+    threads:
+      max: 100
+      min-spare: 30
+
+#数据源配置
+spring:
+  profiles:
+    active: dev # 环境 dev/test/prod
+
+  datasource:
+    druid:
+      initial-size: 5 # 初始化大小个数
+      min-idle: 5 # 最小个数
+      max-active: 20 # 最大个数
+      max-wait: 30000 # 最大等待时间
+      time-between-eviction-runs-millis: 60000 # 间隔时长进行检查一次，检测是否需要关闭空闲的连接
+      min-evictable-idle-time-millis: 300000 # 最小生存时间
+      max-evictable-idle-time-millis: 5000000 # 最大生存时间
+      test-while-idle: true # 验证连接的有效性
+      test-on-borrow: true # 获取连接时验证
+      test-on-return: false # 归还连接时是否进行测试
+      remove-abandoned: true # 自动删除废弃的连接
+      remove-abandoned-timeout: 1800 # 删除废弃连接间隔时间
+      filters: stat, wall # 过滤
+      validation-query: SELECT 'X'
+      aop-patterns: com.example.*.*.service.*
+
+  jackson:
+    time-zone: GMT+8 # 时区————中国
+    date-format: yyyy/MM/dd HH:mm:ss #时间格式化
+
+  #配置静态页面禁用缓存
+  thymeleaf:
+    cache: false
+
+  #开启热部署功能
+  devtools:
+    restart:
+      enabled: true
+
+  servlet:
+    multipart:
+      max-file-size: 10MB #单个文件最大
+      max-request-size: 100MB # 总上传数据最大
+
+  mvc:
+    static-path-pattern: /static/**
+    throw-exception-if-no-handler-found: true
+
+
+# MyBatis配置
+mybatis:
+  # 搜索指定包别名
+  typeAliasesPackage:
+    - com.example.**.entity
+
+  # 配置mapper的扫描，找到所有的mapper.xml映射文件
+  mapperLocations:
+    - classpath*:mapper/**/*.xml
+    - classpath:com/example/demo/**/*.xml
